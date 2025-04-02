@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-right: 0 !important;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+@supports not (scrollbar-gutter: stable) {
+  body {
+    margin-right: calc(100vw - 100%);
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.MuiDialog-root .MuiBackdrop-root {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.MuiDialog-paper {
+  overflow-y: visible !important;
+}
+
+.MuiModal-root + .MuiBackdrop-root {
+  position: fixed !important;
+}
