@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme, StyledEngineProvider, CssBaseline } from '@mui/material';
 import { GlobalStyles } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
@@ -12,6 +12,8 @@ import SleepTracker from './components/SleepTracker';
 import NutritionTracker from './components/NutritionTracker';
 import ActivityTracker from './components/ActivityTracker';
 import WellbeingTracker from './components/WellbeingTracker';
+import MetricsProxy from './MetricsProxy';
+import HealthProxy from './HealthProxy';
 import './App.css';
 
 const theme = createTheme({
@@ -79,6 +81,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route
                 path="/"
                 element={
@@ -119,6 +122,8 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route path="/metrics" element={<MetricsProxy />} />
+              <Route path="/health" element={<HealthProxy />} />
             </Routes>
           </Router>
         </AuthProvider>

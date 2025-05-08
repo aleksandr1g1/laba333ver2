@@ -12,9 +12,23 @@ let { Kafka } = require('kafkajs');
 const kafkaEmulator = require('./kafka/emulator');
 require('dotenv').config();
 
+// Импортируем новые модули
+const path = require('path');
+const fs = require('fs');
+const { logger, httpLogger } = require('./utils/logger');
+const { metricsMiddleware, initServiceHealth } = require('./utils/metrics');
+const {
+  authHealthCheck,
+  dashboardHealthCheck,
+  sleepHealthCheck,
+  nutritionHealthCheck,
+  activityHealthCheck,
+  wellbeingHealthCheck
+} = require('./middleware/health');
+
 const app = express();
 const PORT = process.env.PORT || 3002;
-const ENABLE_KAFKA = process.env.ENABLE_KAFKA !== 'false'; // По умолчанию включена, отключается явным флагом
+const ENABLE_KAFKA = process.env.ENABLE_KAFKA === 'true' || false;
 
 // Глобальные переменные для Kafka
 let kafka = null;
@@ -26,30 +40,28 @@ let admin = null;
 app.use(cors());
 app.use(express.json());
 
-// Отказоустойчивая отправка сообщений в Kafka
-const safeSendMessage = async (topic, key, value) => {
-  if (ENABLE_KAFKA && producer) {
-    try {
-      console.log(`Отправка сообщения в Kafka (тема: ${topic}, ключ: ${key})`);
-      await producer.send({
-        topic,
-        messages: [{ key, value: JSON.stringify(value) }]
-      });
-      console.log(`Сообщение успешно отправлено в Kafka (тема: ${topic}, ключ: ${key})`);
-      return true;
-    } catch (error) {
-      console.error(`Ошибка при отправке сообщения в Kafka: ${error.message}`);
-      return false;
-    }
-  } else {
-    console.log(`Kafka недоступна или отключена, сообщение не отправлено (тема: ${topic}, ключ: ${key})`);
-    return false;
-  }
-};
+// Добавляем middleware для логирования HTTP-запросов
+app.use(httpLogger);
 
-// Добавляем функцию safeSendMessage к объекту запроса
+// Добавляем middleware для сбора метрик
+app.use(metricsMiddleware);
+
+// Добавляем safe send message к объекту запроса
 app.use((req, res, next) => {
-  req.safeSendMessage = safeSendMessage;
+  req.safeSendMessage = async (topic, key, value) => {
+    try {
+      if (ENABLE_KAFKA && producer) {
+        await sendMessage(producer, topic, key, value);
+        logger.info(`Message sent to Kafka topic: ${topic}`);
+      } else {
+        // Эмуляция Kafka при локальной разработке
+        kafkaEmulator.processMessage(topic, key, value);
+        logger.info(`Message processed by Kafka emulator: ${topic}`);
+      }
+    } catch (error) {
+      logger.error(`Error sending Kafka message: ${error}`);
+    }
+  };
   next();
 });
 
@@ -204,6 +216,9 @@ const init = async () => {
     // Создаем таблицы если они не существуют
     await createTablesIfNotExist();
     
+    // Инициализируем метрики здоровья сервисов
+    initServiceHealth();
+    
     // Инициализация Kafka
     if (ENABLE_KAFKA) {
       try {
@@ -265,10 +280,10 @@ const init = async () => {
       console.log('Kafka отключена в настройках');
     }
     
-    console.log('Базы данных успешно инициализированы');
+    logger.info('Базы данных успешно инициализированы');
     return true;
   } catch (error) {
-    console.error('Ошибка при инициализации:', error);
+    logger.error(`Ошибка при инициализации: ${error}`);
     throw error;
   }
 };
@@ -465,13 +480,21 @@ app.get('/api/wellbeing', async (req, res) => {
   }
 });
 
+// Добавляем маршруты для метрик
+app.use('/api', require('./routes/metrics'));
+
+// Применяем healthcheck middleware к соответствующим маршрутам
+app.use('/api/auth', authHealthCheck, require('./routes/auth'));
+app.use('/api/dashboard', dashboardHealthCheck, require('./routes/dashboard'));
+app.use('/api/sleep', sleepHealthCheck, require('./routes/sleep'));
+app.use('/api/nutrition', nutritionHealthCheck, require('./routes/nutrition'));
+app.use('/api/activity', activityHealthCheck, require('./routes/activity'));
+app.use('/api/wellbeing', wellbeingHealthCheck, require('./routes/wellbeing'));
+
 // Обработка ошибок
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    error: 'Внутренняя ошибка сервера',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
-  });
+  logger.error(`Error: ${err.message}`, { stack: err.stack });
+  res.status(500).json({ error: 'Ошибка сервера' });
 });
 
 // Обработка сигналов завершения
@@ -493,17 +516,23 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
+// Создаем директорию для логов, если она не существует
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
+
 // Запуск сервера
 async function startServer() {
   try {
-    await init();
-    
-    // Запускаем сервер на порту 3002 (вместо 3001)
-    app.listen(PORT, () => {
-      console.log(`Сервер запущен на порту ${PORT}`);
-    });
+    const initialized = await init();
+    if (initialized) {
+      app.listen(PORT, () => {
+        logger.info(`Сервер запущен на порту ${PORT}`);
+      });
+    }
   } catch (error) {
-    console.error('Ошибка при запуске сервера:', error);
+    logger.error(`Ошибка запуска сервера: ${error}`);
     process.exit(1);
   }
 }

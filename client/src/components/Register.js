@@ -20,6 +20,7 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -27,10 +28,25 @@ const Register = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Проверка наличия символа @ в email
+    if (e.target.name === 'email') {
+      if (!e.target.value.includes('@') && e.target.value.length > 0) {
+        setEmailError('Email должен содержать символ "@"');
+      } else {
+        setEmailError('');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Проверка email перед отправкой формы
+    if (!formData.email.includes('@')) {
+      setEmailError('Email должен содержать символ "@"');
+      return;
+    }
     
     // Проверка совпадения паролей
     if (formData.password !== formData.confirmPassword) {
@@ -78,6 +94,8 @@ const Register = () => {
               autoFocus
               value={formData.email}
               onChange={handleChange}
+              error={!!emailError}
+              helperText={emailError}
             />
             
             <TextField

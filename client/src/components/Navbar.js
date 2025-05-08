@@ -44,7 +44,12 @@ const Navbar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography 
+          variant="h6" 
+          component="div" 
+          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          onClick={() => user && navigate('/')}
+        >
           Health Tracker
         </Typography>
         {user ? (
@@ -95,7 +100,7 @@ const Navbar = () => {
           </>
         ) : (
           !isAuthPage && (
-            <Button color="inherit" onClick={() => navigate('/auth')}>
+            <Button color="inherit" onClick={() => navigate('/login')}>
               Войти
             </Button>
           )

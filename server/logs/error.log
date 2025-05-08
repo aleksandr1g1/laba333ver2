@@ -1,0 +1,13 @@
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 09:54:55"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 09:58:52"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 09:59:18"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 10:20:07"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 10:21:02"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:00:42"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:01:24"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:01:43"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:01:59"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:02:04"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:02:08"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:02:12"}
+{"level":"error","message":"Error sending Kafka message: TypeError: kafkaEmulator.processMessage is not a function","service":"health-tracker","timestamp":"2025-05-08 11:02:15"}

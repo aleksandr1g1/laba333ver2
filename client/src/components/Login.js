@@ -20,6 +20,7 @@ const Login = () => {
   });
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -28,10 +29,26 @@ const Login = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Проверка наличия символа @ в email
+    if (e.target.name === 'email') {
+      if (!e.target.value.includes('@') && e.target.value.length > 0) {
+        setEmailError('Email должен содержать символ "@"');
+      } else {
+        setEmailError('');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Проверка email перед отправкой формы
+    if (!formData.email.includes('@')) {
+      setEmailError('Email должен содержать символ "@"');
+      return;
+    }
+    
     try {
       const response = await axios.post('/api/auth/login', formData);
       login(response.data.user, response.data.token);
@@ -67,6 +84,8 @@ const Login = () => {
               autoFocus
               value={formData.email}
               onChange={handleChange}
+              error={!!emailError}
+              helperText={emailError}
             />
             
             <TextField

@@ -17,7 +17,11 @@
     "jsonwebtoken": "^9.0.0",
     "kafkajs": "^2.2.4",
     "pg": "^8.10.0",
-    "pg-pool": "^3.6.1"
+    "pg-pool": "^3.6.1",
+    "winston": "^3.11.0",
+    "prom-client": "^13.2.0",
+    "express-prometheus-middleware": "^1.2.0",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
