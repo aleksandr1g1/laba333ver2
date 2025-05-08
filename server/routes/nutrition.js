@@ -39,9 +39,13 @@ router.post('/', authenticateToken, async (req, res) => {
       // Продолжаем выполнение даже при ошибке добавления колонки
     }
 
+    // Используем dish_name в качестве meal_type и вычисляем calories
+    const calories = Math.round(proteins * 4 + carbs * 4 + fats * 9);
+    const meal_type = dish_name;
+
     const result = await writePool.query(
-      'INSERT INTO nutrition_records (user_id, dish_name, proteins, fats, carbs, date, dishes_data) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [req.user.id, dish_name, proteins, fats, carbs, date, dishes_data]
+      'INSERT INTO nutrition_records (user_id, dish_name, proteins, fats, carbs, date, dishes_data, meal_type, calories) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+      [req.user.id, dish_name, proteins, fats, carbs, date, dishes_data, meal_type, calories]
     );
 
     const record = result.rows[0];

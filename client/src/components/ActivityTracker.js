@@ -197,6 +197,12 @@ const ActivityTracker = () => {
                 value={activityData.activityType}
                 onChange={handleChange}
                 label="Тип активности"
+                MenuProps={{
+                  style: { zIndex: 9999 },
+                  PaperProps: {
+                    style: { maxHeight: 300 }
+                  }
+                }}
               >
                 {ACTIVITY_TYPES.map((type) => (
                   <MenuItem key={type} value={type}>
@@ -236,6 +242,12 @@ const ActivityTracker = () => {
                 value={activityData.intensity}
                 onChange={handleChange}
                 label="Интенсивность"
+                MenuProps={{
+                  style: { zIndex: 9999 },
+                  PaperProps: {
+                    style: { maxHeight: 300 }
+                  }
+                }}
               >
                 {[1, 2, 3, 4, 5].map((level) => (
                   <MenuItem key={level} value={level}>

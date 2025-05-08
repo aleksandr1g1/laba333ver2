@@ -23,9 +23,12 @@ router.post('/', authenticateToken, async (req, res) => {
     const { date, mood, sleepQuality, energyLevel, stressLevel, notes } = req.body;
     console.log('Получены данные о самочувствии:', { date, mood, sleepQuality, energyLevel, stressLevel, notes, user_id: req.user.id });
 
+    // Если sleepQuality не определено, устанавливаем значение по умолчанию
+    const sleep_quality = sleepQuality || 5;
+
     const result = await writePool.query(
       'INSERT INTO wellbeing_records (user_id, date, mood, sleep_quality, energy_level, stress_level, notes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [req.user.id, date, mood, sleepQuality, energyLevel, stressLevel, notes]
+      [req.user.id, date, mood, sleep_quality, energyLevel, stressLevel, notes]
     );
 
     const record = result.rows[0];

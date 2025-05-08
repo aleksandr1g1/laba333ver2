@@ -69,20 +69,30 @@ const checkDatabaseConnections = async () => {
 // Проверка и создание базы данных
 const createDatabaseIfNotExists = async () => {
   try {
-    // Проверяем существование базы данных
-    const dbCheckResult = await writePool.query(`
-      SELECT 1 FROM pg_database WHERE datname = 'health_tracker'
+    // Проверяем существование баз данных, но не создаем new ones
+    const dbWriteCheckResult = await writePool.query(`
+      SELECT 1 FROM pg_database WHERE datname = 'health_tracker_write'
     `);
     
-    if (dbCheckResult.rows.length === 0) {
-      console.log('Создаем базу данных health_tracker...');
-      await writePool.query('CREATE DATABASE health_tracker');
-      console.log('База данных health_tracker успешно создана');
+    const dbReadCheckResult = await writePool.query(`
+      SELECT 1 FROM pg_database WHERE datname = 'health_tracker_read'
+    `);
+    
+    if (dbWriteCheckResult.rows.length > 0) {
+      console.log('База данных health_tracker_write уже существует');
     } else {
-      console.log('База данных health_tracker уже существует');
+      console.error('База данных health_tracker_write не существует, пожалуйста создайте её');
+      throw new Error('База данных health_tracker_write не существует');
     }
     
-    console.log('Запрос выполнен успешно');
+    if (dbReadCheckResult.rows.length > 0) {
+      console.log('База данных health_tracker_read уже существует');
+    } else {
+      console.error('База данных health_tracker_read не существует, пожалуйста создайте её');
+      throw new Error('База данных health_tracker_read не существует');
+    }
+    
+    console.log('Проверка существования баз данных завершена успешно');
     return true;
   } catch (error) {
     console.error('Ошибка при проверке/создании базы данных:', error);
@@ -109,7 +119,7 @@ const createTablesIfNotExist = async () => {
         CREATE TABLE IF NOT EXISTS users (
           id SERIAL PRIMARY KEY,
           email VARCHAR(255) UNIQUE NOT NULL,
-          password VARCHAR(255) NOT NULL,
+          password_hash VARCHAR(255) NOT NULL,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         )
       `);

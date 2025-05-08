@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { readPool, writePool } = require('../db/init');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const config = require('../config/config');
 const { authenticateToken } = require('../middleware/auth');
 

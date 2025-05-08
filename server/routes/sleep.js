@@ -22,10 +22,18 @@ router.post('/', authenticateToken, async (req, res) => {
   try {
     const { startTime, endTime, quality } = req.body;
     console.log('Получены данные:', { startTime, endTime, quality, user_id: req.user.id });
+    
+    // Вычисляем продолжительность сна в минутах
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const durationMinutes = Math.round((end - start) / (1000 * 60));
+    const date = start.toISOString().split('T')[0]; // Получаем дату из startTime
+    
+    console.log('Вычисленная продолжительность:', { durationMinutes, date });
 
     const result = await writePool.query(
-      'INSERT INTO sleep_records (user_id, start_time, end_time, quality) VALUES ($1, $2, $3, $4) RETURNING *',
-      [req.user.id, startTime, endTime, quality]
+      'INSERT INTO sleep_records (user_id, sleep_duration, quality, date, start_time, end_time) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [req.user.id, durationMinutes, quality, date, startTime, endTime]
     );
 
     const record = result.rows[0];

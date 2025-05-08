@@ -14,5 +14,5 @@ module.exports = {
     port: 5432,
   },
   jwtSecret: 'your-secret-key-here',
-  port: 3001
+  port: 3002
 }; 

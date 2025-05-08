@@ -23,9 +23,45 @@ router.post('/', authenticateToken, async (req, res) => {
     const { activityType, duration, intensity, date } = req.body;
     console.log('Получены данные:', { activityType, duration, intensity, date, user_id: req.user.id });
 
+    // Расчет сожженных калорий на основе продолжительности и интенсивности
+    // Базовый коэффициент в зависимости от типа активности (калорий в минуту)
+    let baseCaloriesPerMinute = 5; // Значение по умолчанию
+    
+    switch(activityType) {
+      case 'Бег':
+        baseCaloriesPerMinute = 10;
+        break;
+      case 'Ходьба':
+        baseCaloriesPerMinute = 4;
+        break;
+      case 'Плавание':
+        baseCaloriesPerMinute = 8;
+        break;
+      case 'Велосипед':
+        baseCaloriesPerMinute = 7;
+        break;
+      case 'Тренажерный зал':
+        baseCaloriesPerMinute = 6;
+        break;
+      case 'Йога':
+        baseCaloriesPerMinute = 3;
+        break;
+      case 'Танцы':
+        baseCaloriesPerMinute = 5;
+        break;
+      default:
+        baseCaloriesPerMinute = 5;
+    }
+    
+    // Рассчитываем калории с учетом интенсивности
+    const intensityMultiplier = intensity / 3; // Нормализуем интенсивность (3 - средняя интенсивность)
+    const calories_burned = Math.round(baseCaloriesPerMinute * intensityMultiplier * duration);
+    
+    console.log('Рассчитанные калории:', calories_burned);
+
     const result = await writePool.query(
-      'INSERT INTO activity_records (user_id, activity_type, duration, intensity, date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [req.user.id, activityType, duration, intensity, date]
+      'INSERT INTO activity_records (user_id, activity_type, duration, intensity, date, calories_burned) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [req.user.id, activityType, duration, intensity, date, calories_burned]
     );
 
     const record = result.rows[0];
@@ -57,9 +93,45 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Запись не найдена' });
     }
 
+    // Расчет сожженных калорий на основе продолжительности и интенсивности
+    // Базовый коэффициент в зависимости от типа активности (калорий в минуту)
+    let baseCaloriesPerMinute = 5; // Значение по умолчанию
+    
+    switch(activityType) {
+      case 'Бег':
+        baseCaloriesPerMinute = 10;
+        break;
+      case 'Ходьба':
+        baseCaloriesPerMinute = 4;
+        break;
+      case 'Плавание':
+        baseCaloriesPerMinute = 8;
+        break;
+      case 'Велосипед':
+        baseCaloriesPerMinute = 7;
+        break;
+      case 'Тренажерный зал':
+        baseCaloriesPerMinute = 6;
+        break;
+      case 'Йога':
+        baseCaloriesPerMinute = 3;
+        break;
+      case 'Танцы':
+        baseCaloriesPerMinute = 5;
+        break;
+      default:
+        baseCaloriesPerMinute = 5;
+    }
+    
+    // Рассчитываем калории с учетом интенсивности
+    const intensityMultiplier = intensity / 3; // Нормализуем интенсивность (3 - средняя интенсивность)
+    const calories_burned = Math.round(baseCaloriesPerMinute * intensityMultiplier * duration);
+    
+    console.log('Рассчитанные калории при обновлении:', calories_burned);
+
     const result = await writePool.query(
-      'UPDATE activity_records SET activity_type = $1, duration = $2, intensity = $3, date = $4 WHERE id = $5 AND user_id = $6 RETURNING *',
-      [activityType, duration, intensity, date, id, req.user.id]
+      'UPDATE activity_records SET activity_type = $1, duration = $2, intensity = $3, date = $4, calories_burned = $5 WHERE id = $6 AND user_id = $7 RETURNING *',
+      [activityType, duration, intensity, date, calories_burned, id, req.user.id]
     );
 
     const record = result.rows[0];
